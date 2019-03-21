@@ -3,11 +3,11 @@ const express = require("express")
 const fs = require("fs")
 const multer = require("multer")
 const { spawn, exec } = require("child_process")
+const path = require("path")
 
 const port = process.env.PORT || 3000;
 
 const app = express()
-app.use(express.static(__dirname + '/public'));
 
 var filename
 
@@ -33,6 +33,10 @@ const upload = multer({
         
         cb(undefined, true)
     }
+})
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname + "/../public/index.html"))
 })
 
 app.post("/ascii:image", upload.single("image"), async (req, res) => {
