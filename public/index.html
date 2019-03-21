@@ -1,0 +1,72 @@
+<html>
+    <head>
+        <style>
+            #image {
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 1.4ex;
+                padding: 0;
+                background: #000;
+                color: #fff;
+                overflow: hidden;
+                resize: both;
+                letter-spacing: 0;
+                height: auto;
+            }
+
+            i {
+                font-style: normal
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div  id="image">
+        </div>
+
+        <form id="uploadImage" action="/ascii:image" method="POST" enctype="multipart/form-data">
+            <input type="file" id="uploadImageField" name="image">
+            <input type="checkbox" name="color" id="color">
+            <input type="submit" name="submit">
+        </form>
+    </body>
+
+    <script>
+
+        window.onload = () => {
+            const imageElement = document.querySelector("#image")
+            const imageAjax = new XMLHttpRequest()
+            const form = document.querySelector("#uploadImage")
+            const color = document.querySelector("#color").checked;
+
+            form.onsubmit = (e) => {
+                e.preventDefault()
+                var formData = new FormData()
+                formData.append("image", document.querySelector("[type=file]").files[0])
+                formData.append("color", color)
+
+                var parsedImage = {}
+
+                imageAjax.open("POST", "/ascii:image", true)
+                imageAjax.send(formData)
+                
+                imageAjax.onreadystatechange = () => {
+
+                    if(imageAjax.readyState === 4) {
+                        parsedImage = JSON.parse(imageAjax.responseText)
+
+                        const ratio = parsedImage.aspect;
+                        const width = parsedImage.width;
+                        const height = width / ratio;
+
+                        console.log(width, height, ratio);
+                        
+                        imageElement.style.width = (width * 1.42) + "ex";
+                        imageElement.style.height = "auto";
+                        imageElement.textContent = parsedImage.image;
+                    }
+                }
+            }
+        }
+    </script>
+    
+</html>

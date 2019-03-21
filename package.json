@@ -1,0 +1,22 @@
+{
+  "name": "ascii",
+  "version": "0.0.1",
+  "description": "",
+  "main": "/src/app.js",
+  "scripts": {
+    "dev": "nodemon src/app.js -e js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "multer": "^1.4.1",
+    "python-shell": "^1.0.7",
+    "sharp": "^0.22.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  }
+}
