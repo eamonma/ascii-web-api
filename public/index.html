@@ -96,10 +96,10 @@
                 <label for="resolution">Resolution</label>  <input max="200" placeholder="100" type="number" name="resolution" id="resolution"> <span>Maximum 200</span>
                 <br>
                 <br>
-                <div class="upload-btn-wrapper">
-                        <button class="btn">Select image</button>
+                <!-- <div class="upload-btn-wrapper"> -->
+                        <!-- <button class="btn">Select image</button> -->
                         <input type="file" id="uploadImageField" name="image" required> <label for="image">Maximum 10MB</label> 
-                </div>
+                <!-- </div> -->
                 <br>
                 <br>
                 <button type="submit">Submit</button>
@@ -147,13 +147,13 @@
 
                         console.log(width, height, ratio);
                         
-                        imageElement.style.width = (width * 1.43) + "ex";
+                        imageElement.style.width = (width * 1.418) + "ex";
                         imageElement.style.height = "auto";
 
                         imageElement.style.background = (reverse) ? "#fff" : "#000";
                         imageElement.style.color = (reverse) ? "#000" : "#fff";
 
-                        
+
                         if(!color) {
                             imageElement.textContent = image;
                         } else if(color) {
