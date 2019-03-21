@@ -108,11 +108,12 @@ def main():
                 reshaped.append(pixel_color_values[idx])
                 idx += 1
             else:
-                reshaped.append([0, 0, 0])
+                reshaped.append((0, 0, 0))
         values_dict = {
             'width': width,
             'height': height,
             'aspect': original_aspect_ratio,
+            'alpha': False if len(reshaped[0]) <= 3 else True,
             'image': ascii_pixels,
             'pixel_values': reshaped
         }

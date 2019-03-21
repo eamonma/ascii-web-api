@@ -1,6 +1,10 @@
 <html>
     <head>
         <style>
+            body {
+                font-family: 'Courier New', Courier, monospace
+            }
+
             #image {
                 font-family: 'Courier New', Courier, monospace;
                 font-size: 1.4ex;
@@ -25,7 +29,10 @@
 
         <form id="uploadImage" action="/ascii:image" method="POST" enctype="multipart/form-data">
             <input type="file" id="uploadImageField" name="image">
-            <input type="checkbox" name="color" id="color">
+            <br>
+            <label for="color">Color?</label>   <input type="checkbox" name="color" id="color">
+            <br>
+            <label for="rev">Reverse?</label>   <input type="checkbox" name="reverse" id="reverse">
             <input type="submit" name="submit">
         </form>
     </body>
@@ -36,13 +43,15 @@
             const imageElement = document.querySelector("#image")
             const imageAjax = new XMLHttpRequest()
             const form = document.querySelector("#uploadImage")
-            const color = document.querySelector("#color").checked;
 
             form.onsubmit = (e) => {
                 e.preventDefault()
+                const color = document.querySelector("#color").checked;
+                const reverse = document.querySelector("#reverse").checked;
                 var formData = new FormData()
                 formData.append("image", document.querySelector("[type=file]").files[0])
                 formData.append("color", color)
+                formData.append("reverse", reverse)
 
                 var parsedImage = {}
 
@@ -53,6 +62,8 @@
 
                     if(imageAjax.readyState === 4) {
                         parsedImage = JSON.parse(imageAjax.responseText)
+                        const image = parsedImage.image;
+                        
 
                         const ratio = parsedImage.aspect;
                         const width = parsedImage.width;
@@ -60,9 +71,31 @@
 
                         console.log(width, height, ratio);
                         
-                        imageElement.style.width = (width * 1.42) + "ex";
+                        imageElement.style.width = (width * 1.43) + "ex";
                         imageElement.style.height = "auto";
-                        imageElement.textContent = parsedImage.image;
+
+                        imageElement.style.background = (reverse) ? "#fff" : "#000";
+                        imageElement.style.color = (reverse) ? "#000" : "#fff";
+
+                        if(!color) {
+                            imageElement.textContent = image;
+                        } else if(color) {
+                            var imageHTMLWithColor = "";
+                            for(var i = 0; i < image.length; i++) { // for each letter (pixel)
+                                if(image.charAt(i) == "\n") {
+                                    imageHTMLWithColor += "\n"
+                                    continue;
+                                }
+                                console.log("here");
+                                if(!parsedImage.alpha) {
+                                    imageHTMLWithColor += `<i style="color: rgb(${parsedImage.pixel_values[i][0]}, ${parsedImage.pixel_values[i][1]}, ${parsedImage.pixel_values[i][2]})">${image.charAt(i)}</i>`
+                                } else {
+                                    imageHTMLWithColor += `<i style="color: rgba(${parsedImage.pixel_values[i][0]}, ${parsedImage.pixel_values[i][1]}, ${parsedImage.pixel_values[i][2]}, ${parsedImage.pixel_values[i][3]})">${image.charAt(i)}</i>`
+                                }
+                            }
+
+                            imageElement.innerHTML = imageHTMLWithColor;
+                        }
                     }
                 }
             }

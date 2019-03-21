@@ -4,6 +4,8 @@ const fs = require("fs")
 const multer = require("multer")
 const { spawn, exec } = require("child_process")
 
+const port = process.env.PORT || 3000;
+
 const app = express()
 app.use(express.static("./public"))
 
@@ -14,7 +16,7 @@ const storage = multer.diskStorage({
         cb(null, './uploads')
     },
     filename: function (req, file, cb) {
-        filename = file.fieldname + '-' + Date.now() + ".jpg"
+        filename = file.fieldname + '-' + Date.now()
         cb(null, filename)
     }
   })
@@ -34,17 +36,29 @@ const upload = multer({
 })
 
 app.post("/ascii:image", upload.single("image"), async (req, res) => {
-    const filePath = req.file.path
-    console.log(req);
+    var filePath
+    try {
+        filePath = req.file.path
+    } catch(e) {
+        return res.status(400).send({image: "Please upload a valid image."})
+    }
+    // console.log(req);
     
-    console.log(`-f ./${filePath} -j ./JSONimages`);
-    console.log(req.params.color);
+    var args = ["-f", "./" + filePath, "-j", "./JSONimages"]
+    if(req.body.color) {
+        args.push("-c");
+    }
+
+    if(req.body.reverse) {
+        args.push("-rev")
+    }
+
+    console.log(args);
     
-    const args = ["-f", "./" + filePath, "-j", "./JSONimages", (req.params.color === "true") ? ("-c") : ("")]
 
     PythonShell.run("./python/ascii_image.py", {
         mode: "text",
-        args: ["-f", "./" + filePath, "-j", "./JSONimages"]
+        args
     }, (e, results) => {
         if(e) {
             console.log("Error: \n", e.traceback);
@@ -52,62 +66,33 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
 
         const JSONImagePath = results[0];
 
-        console.log(JSONImagePath);
+        // console.log(JSONImagePath);
 
         fs.readFile(JSONImagePath, (e, result) => {
             if(e) {
                 console.log(e);
-                
-                return res.status(500).send()
+                return res.status(500).send({image:"Error reading image."})
             }
 
             res.send(result)
 
+            console.log(JSON.parse(result).pixel_values);
+            
 
             fs.unlink(JSONImagePath, (e) => {
                 if(e) {
                     console.log(e);
-                    
                 }
-                
             })
 
             fs.unlink(filePath, (e) => {
                 if(e) {
-                    console.log(e);
-                    
+                    console.log(e);   
                 }
             })
         })
     })
-    
-
 })
-
-// app.get("/ascii:image", (req, res) => {
-
-
-    // PythonShell.run("./python/test.py", null, (e, results) => {
-    //     console.log(results);
-    
-    // })
-
-    // res.send()
-// })
-
-
-
-// fs.readFile("./ascii_image.json", (e, result) => {
-//     if(e) {
-//         throw new Error("")
-//     }
-    
-//     app.get("/ascii:image", (req, res) => {
-//         res.send(result)
-//     })
-
-//     // console.log(parsedImage.image);
-// })
 
 app.listen("3000", () => {
     console.log("Server up on port 3000");
