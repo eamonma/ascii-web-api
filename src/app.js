@@ -42,15 +42,21 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
     } catch(e) {
         return res.status(400).send({image: "Please upload a valid image."})
     }
-    // console.log(req);
     
     var args = ["-f", "./" + filePath, "-j", "./JSONimages"]
     if(req.body.color) {
         args.push("-c");
     }
-
     if(req.body.reverse) {
         args.push("-rev")
+    }
+
+    try {
+        if(parseInt(req.body.resolution) < 201) {
+            args.push("-r", req.body.resolution)
+        }
+    } catch(e) {
+        res.status(400).send({image: "Invalid."})
     }
 
     console.log(args);
@@ -94,7 +100,7 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
     })
 })
 
-app.listen("3000", () => {
-    console.log("Server up on port 3000");
+app.listen(port, () => {
+    console.log("Server up on port " + port);
     
 })
