@@ -7,7 +7,7 @@ const { spawn, exec } = require("child_process")
 const port = process.env.PORT || 3000;
 
 const app = express()
-app.use(express.static("./public"))
+app.use(express.static(__dirname + '/public'));
 
 var filename
 
