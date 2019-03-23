@@ -158,8 +158,6 @@
 
                         imageElement.style.background = (reverse) ? "#fff" : "#000";
                         imageElement.style.color = (reverse) ? "#000" : "#fff";
-                        // imageElement.style.width = (width * 1.1) + "ex";
-                        // imageElement.style.minHeight = (width * 1.3) / ratio + "ex";
 
                         var imageHTML = "";
                         if(!color) {
@@ -194,7 +192,7 @@
                         scaleFactor = transformX;
 
                         if(transformX !== 1) {
-                            // imageElement.style.transform = `scale(${transformX})`;
+                            imageElement.style.transform = `scale(${transformX})`;
                         } else {
                             imageElement.style.visibiliy = "visible";
                         }
