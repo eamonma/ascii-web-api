@@ -1,9 +1,10 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <html>
+        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
         <style>
             body {
-                font-family: 'Courier New', Courier, monospace;
+                font-family: "Inconsolata", 'Courier New', Courier, monospace;
                 display: flex;
                 align-content: center;
                 align-items: center;
@@ -14,7 +15,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 100%;
+                min-height: 100%;
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
@@ -25,7 +26,7 @@
             }
 
             #image {
-                font-family: 'Courier New', Courier, monospace;
+                font-family: 'Inconsolata', Courier, monospace;
                 font-size: 1.4ex;
                 padding: 0;
                 background: #000;
@@ -36,7 +37,7 @@
                 height: auto;
                 left: 0;
                 right: 0;
-                margin-bottom: 20px;
+                margin-bottom: 50px;
                 transition: 0.2s;
                 transform-origin: top;
             }
@@ -57,6 +58,7 @@
                 padding: 0 20px;
                 transition: 0.2s;
                 background: #eee;
+                opacity: 0.9;
                 border-radius: 10px 10px 0 0;
             }
 
@@ -154,8 +156,8 @@
 
                         imageElement.style.background = (reverse) ? "#fff" : "#000";
                         imageElement.style.color = (reverse) ? "#000" : "#fff";
-                        imageElement.style.width = (width * 1.422) + "ex";
-                        imageElement.style.minHeight = (width * 1.3) / ratio + "ex";
+                        imageElement.style.width = (width * 1.096) + "ex";
+                        // imageElement.style.minHeight = (width * 1.3) / ratio + "ex";
 
                         var imageHTML = "";
                         if(!color) {
