@@ -127,7 +127,7 @@
     </body>
 
     <script>
-        const copyToClipboard = (containerid) => {
+        const copyToClipboard = (containerid, notify) => {
             if (document.selection) { 
                 var range = document.body.createTextRange();
                 range.moveToElementText(document.getElementById(containerid));
@@ -140,8 +140,56 @@
                 window.getSelection().addRange(range);
                 document.execCommand("copy");
             }
+            
         }
+
+        const Image = {
+            renderToDiv(target, imageJSON, color, reverse) {
+                target.style.visibiliy = "hidden";
+                const image = imageJSON.image;
+                var imageHTML = "";
+
+                target.style.background = (reverse) ? "#fff" : "#000";
+                target.style.color = (reverse) ? "#000" : "#fff";
+
+                if(!color) {
+                    for(var i = 0; i < image.length; i++) { // for each letter (pixel)
+                        if(image.charAt(i) == "\n") {
+                            imageHTML += "<br>"
+                            continue;
+                        }
+                        imageHTML += `${image.charAt(i)}`
+                    }
+                } else if(color) {
+                    for(var i = 0; i < image.length; i++) { // for each letter (pixel)
+                        if(image.charAt(i) == "\n") {
+                            imageHTML += "<br>"
+                            continue;
+                        }
+                        if(!imageJSON.alpha) { 
+                            imageHTML += `<i style="color: rgb(${imageJSON.pixel_values[i][0]}, ${imageJSON.pixel_values[i][1]}, ${imageJSON.pixel_values[i][2]})">${image.charAt(i)}</i>`
+                        } else {
+                            imageHTML += `<i style="color: rgba(${imageJSON.pixel_values[i][0]}, ${imageJSON.pixel_values[i][1]}, ${imageJSON.pixel_values[i][2]}, ${imageJSON.pixel_values[i][3]})">${image.charAt(i)}</i>`
+                        }
+                    }
+                }
+                target.innerHTML = imageHTML;
+                target.style.visibiliy = "visible";
+            },
+            requestImageJSON (url, formData, cb) {
+                const req = new XMLHttpRequest();
+                req.open("POST", url, true)
+                req.send(formData)
+                req.onreadystatechange = () => {
+                    if(req.readyState === 4) {
+                        cb(JSON.parse(req.responseText));
+                    }
+                }
+            }
+        }
+
         window.onload = () => {
+
             var mobile = false;
             window.addEventListener('touchstart', function() {
                 mobile = true;
@@ -161,6 +209,10 @@
             var transformX = intendedImageElementWidth / imageElementWidth;
             var scaleFactor = transformX;
 
+            Image.requestImageJSON("/sample", null, (result) => {
+                Image.renderToDiv(imageElement, result, true, false);
+            })
+
             form.onsubmit = (e) => {
                 e.preventDefault()
                 message.textContent = "Uploading and processing...\n\n";
@@ -169,73 +221,34 @@
                 const reverse = document.querySelector("#reverse").checked;
                 const resolution = document.querySelector("#resolution").value;
 
-                var formData = new FormData()
+                var formData = new FormData();
                 formData.append("image", document.querySelector("[type=file]").files[0])
                 formData.append("color", color)
                 formData.append("reverse", reverse)
                 formData.append("resolution", resolution)
 
-                var parsedImage = {}
+                Image.requestImageJSON("/ascii:image", formData, (result) => {
+                    Image.renderToDiv(imageElement, result, color, reverse);
+                    message.textContent = "";
 
-                imageAjax.open("POST", "/ascii:image", true)
-                imageAjax.send(formData)
-                
-                imageAjax.onreadystatechange = () => {
+                    const ratio = result.aspect;
+                    const width = result.width;
+                    const height = width / ratio;
 
-                    if(imageAjax.readyState === 4) {
-                        imageElement.style.visibiliy = "hidden";
-                        parsedImage = JSON.parse(imageAjax.responseText)
-                        const image = parsedImage.image;
+                    
+                    imageElementWidth = imageElement.getBoundingClientRect().width;
+                    transformX = intendedImageElementWidth / imageElementWidth;
+                    scaleFactor = transformX;
 
-                        const ratio = parsedImage.aspect;
-                        const width = parsedImage.width;
-                        const height = width / ratio;
-
-                        imageElement.style.background = (reverse) ? "#fff" : "#000";
-                        imageElement.style.color = (reverse) ? "#000" : "#fff";
-
-                        var imageHTML = "";
-                        if(!color) {
-                            for(var i = 0; i < image.length; i++) { // for each letter (pixel)
-                                if(image.charAt(i) == "\n") {
-                                    imageHTML += "<br>"
-                                    continue;
-                                }
-
-                                imageHTML += `${image.charAt(i)}`
-                            }
-                        } else if(color) {
-                            for(var i = 0; i < image.length; i++) { // for each letter (pixel)
-                                if(image.charAt(i) == "\n") {
-                                    imageHTML += "<br>"
-                                    continue;
-                                }
-                                if(!parsedImage.alpha) { 
-                                    imageHTML += `<i style="color: rgb(${parsedImage.pixel_values[i][0]}, ${parsedImage.pixel_values[i][1]}, ${parsedImage.pixel_values[i][2]})">${image.charAt(i)}</i>`
-                                } else {
-                                    imageHTML += `<i style="color: rgba(${parsedImage.pixel_values[i][0]}, ${parsedImage.pixel_values[i][1]}, ${parsedImage.pixel_values[i][2]}, ${parsedImage.pixel_values[i][3]})">${image.charAt(i)}</i>`
-                                }
-                            }
+                    if(mobile) {
+                        if(transformX !== 1) {
+                            imageElement.style.transform = `scale(${transformX})`;
+                        } else {
+                            imageElement.style.visibiliy = "visible";
                         }
-
-                        imageElement.innerHTML = imageHTML;
-
-                        message.textContent = "";
-
-                        imageElementWidth = imageElement.getBoundingClientRect().width;
-                        transformX = intendedImageElementWidth / imageElementWidth;
-                        scaleFactor = transformX;
-
-                        if(mobile) {
-                            if(transformX !== 1) {
-                                imageElement.style.transform = `scale(${transformX})`;
-                            } else {
-                                imageElement.style.visibiliy = "visible";
-                            }
-                            console.log(intendedImageElementWidth, imageElementWidth, transformX);
-                        }
-                    }   
-                }
+                        console.log(intendedImageElementWidth, imageElementWidth, transformX);
+                    }
+                });
             }
         }
     </script>

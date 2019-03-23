@@ -37,6 +37,10 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname + "/../public/index.html"))
 })
 
+app.post("/sample", (req, res) => {
+    res.sendFile(path.join(__dirname + "/../public/sample.json"))
+})
+
 app.post("/ascii:image", upload.single("image"), async (req, res) => {
     var filePath
     try {
