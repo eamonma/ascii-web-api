@@ -104,7 +104,7 @@
     
     <body>
         <h1>Image to ASCII</h1>
-        <div  id="image">Upload an image</div>
+        <div id="image">Upload an image</div>
         
         <div class="container">
             <form id="uploadImage" action="/ascii:image" method="POST" enctype="multipart/form-data">
@@ -120,12 +120,27 @@
                 <input type="file" id="uploadImageField" name="image" required> <label for="image">Max 10MB</label> 
                 <br>
                 <br>
-                <button type="submit">Upload</button>
+                <button id="upload" type="submit">Upload</button>
+                <button id="copy" type="button">Copy</button>
             </form>
         </div>
     </body>
 
     <script>
+        const copyToClipboard = (containerid) => {
+            if (document.selection) { 
+                var range = document.body.createTextRange();
+                range.moveToElementText(document.getElementById(containerid));
+                range.select().createTextRange();
+                document.execCommand("copy"); 
+
+            } else if (window.getSelection) {
+                var range = document.createRange();
+                range.selectNode(document.getElementById(containerid));
+                window.getSelection().addRange(range);
+                document.execCommand("copy");
+            }
+        }
         window.onload = () => {
             var mobile = false;
             window.addEventListener('touchstart', function() {
@@ -135,6 +150,10 @@
             const imageAjax = new XMLHttpRequest()
             const form = document.querySelector("#uploadImage")
             const message = document.querySelector("#message")
+            const copy = document.querySelector("#copy")
+            copy.onclick = () => {
+                copyToClipboard("image")
+            }
 
             var imageElementWidth = imageElement.getBoundingClientRect().width;
             var clientWidth = window.innerWidth || document.body.clientWidth;
