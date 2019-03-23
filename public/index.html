@@ -87,6 +87,10 @@
             #message {
                 color: #393;
             }
+/* 
+            @media (max-width: 400px) {
+
+            } */
         </style>
     </head>
     
@@ -115,6 +119,10 @@
 
     <script>
         window.onload = () => {
+            var mobile = false;
+            window.addEventListener('touchstart', function() {
+                mobile = true;
+            });
             var imageElement = document.querySelector("#image")
             const imageAjax = new XMLHttpRequest()
             const form = document.querySelector("#uploadImage")
@@ -191,13 +199,14 @@
                         transformX = intendedImageElementWidth / imageElementWidth;
                         scaleFactor = transformX;
 
-                        if(transformX !== 1) {
-                            imageElement.style.transform = `scale(${transformX})`;
-                        } else {
-                            imageElement.style.visibiliy = "visible";
+                        if(mobile) {
+                            if(transformX !== 1) {
+                                imageElement.style.transform = `scale(${transformX})`;
+                            } else {
+                                imageElement.style.visibiliy = "visible";
+                            }
+                            console.log(intendedImageElementWidth, imageElementWidth, transformX);
                         }
-                        console.log(intendedImageElementWidth, imageElementWidth, transformX);
-                        
                     }   
                 }
             }
