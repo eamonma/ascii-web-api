@@ -3,6 +3,11 @@
         <html>
         <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
         <style>
+            @font-face {
+            font-family: "Consolas";
+            src: url("../consolas.ttf") format("ttf")
+            }
+
             body {
                 font-family: "Inconsolata", 'Courier New', Courier, monospace;
                 display: flex;
@@ -27,7 +32,7 @@
 
             #image {
                 text-align: center;
-                font-family: 'Inconsolata', Courier, monospace;
+                font-family: 'Consolas', Courier, monospace;
                 font-size: 1.4ex;
                 padding: 0;
                 background: #000;
@@ -87,10 +92,12 @@
             #message {
                 color: #393;
             }
-/* 
-            @media (max-width: 400px) {
 
-            } */
+            @media (max-width: 400px) {
+                #image {
+                    width: 100%;
+                }
+            }
         </style>
     </head>
     
