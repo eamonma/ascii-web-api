@@ -53,6 +53,8 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
         args.push("-rev")
     }
 
+    console.log(req.body.reverse);
+
     try {
         if(parseInt(req.body.resolution) < 201) {
             args.push("-r", req.body.resolution)
