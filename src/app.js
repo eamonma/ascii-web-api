@@ -49,7 +49,7 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
     if(req.body.color) {
         args.push("-c");
     }
-    if(req.body.reverse) {
+    if(req.body.reverse === "true") {
         args.push("-rev")
     }
 
