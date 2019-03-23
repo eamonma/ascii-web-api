@@ -1,6 +1,6 @@
-<html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <html>
         <style>
             body {
                 font-family: 'Courier New', Courier, monospace;
@@ -8,14 +8,19 @@
                 align-content: center;
                 align-items: center;
                 flex-direction: column;
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
                 width: 100%;
                 height: 100%;
                 margin: 0;
-                padding: 20px;
+                padding: 0;
                 box-sizing: border-box;
             }
 
-            body * {
+            * {
                 transition: 0.2s;
             }
 
@@ -29,11 +34,11 @@
                 overflow-x: hidden;
                 letter-spacing: 0;
                 height: auto;
-                resize: both;
-                width: 500px;
-                flex-grow: 1;
+                left: 0;
+                right: 0;
                 margin-bottom: 20px;
                 transition: 0.2s;
+                transform-origin: top;
             }
 
             i {
@@ -41,18 +46,18 @@
             }
 
             .container {
-                min-width: 300px;
-                min-height: 300px;
+                width: auto;
+                max-width: 500px;
                 margin: auto;
                 display: flex;
-                flex-direction: column;
+                flex-direction: column-reverse;
+                z-index: 999;
+                position: fixed;
+                bottom: 0;
+                padding: 0 20px;
                 transition: 0.2s;
-            }
-
-            .upload-btn-wrapper {
-                position: relative;
-                overflow: hidden;
-                display: inline-block;
+                background: #eee;
+                border-radius: 10px 10px 0 0;
             }
 
             button {
@@ -66,59 +71,56 @@
                 transition: 0.2s;
             }
 
-            .upload-btn-wrapper input[type=file] {
-                font-size: 100px;
-                position: absolute;
-                left: 0;
-                top: 0;
-                opacity: 0;
-            }
-
             input {
                 font-size: 14px;
                 line-height: 14px;
             }
 
-            button:hover, .upload-btn-wrapper input[type=file]:hover {
+            button:hover {
                 background-color: #111;
+            }
+
+            #message {
+                color: #393;
             }
         </style>
     </head>
     
     <body>
         <h1>Image to ASCII</h1>
-
+        <div  id="image">Upload an image</div>
+        
         <div class="container">
-            <div  id="image">Upload an image</div>
-    
             <form id="uploadImage" action="/ascii:image" method="POST" enctype="multipart/form-data">
                 <br>
                 <div id="message"></div>
-                <label for="color">Color?</label>   <input type="checkbox" name="color" id="color"> <span>Enable color</span>
+                <label for="color">Enable color</label>   <input type="checkbox" name="color" id="color">
                 <br>
-                <label for="rev">Reverse?</label>   <input type="checkbox" name="reverse" id="reverse"> <span>White backround instead of black background</span>
+                <label for="rev">White backround</label>   <input type="checkbox" name="reverse" id="reverse">
                 <br>
-                <label for="resolution">Resolution</label>  <input max="200" placeholder="100" type="number" name="resolution" id="resolution"> <span>Maximum 200</span>
-                <br>
-                <br>
-                <!-- <div class="upload-btn-wrapper"> -->
-                        <!-- <button class="btn">Select image</button> -->
-                        <input type="file" id="uploadImageField" name="image" required> <label for="image">Maximum 10MB</label> 
-                <!-- </div> -->
+                <label for="resolution">Res.</label>  <input max="200" placeholder="100" type="number" name="resolution" id="resolution"> <span>Maximum 200</span>
                 <br>
                 <br>
-                <button type="submit">Submit</button>
+                <input type="file" id="uploadImageField" name="image" required> <label for="image">Max 10MB</label> 
+                <br>
+                <br>
+                <button type="submit">Upload</button>
             </form>
         </div>
     </body>
 
     <script>
         window.onload = () => {
-
-            const imageElement = document.querySelector("#image")
+            var imageElement = document.querySelector("#image")
             const imageAjax = new XMLHttpRequest()
             const form = document.querySelector("#uploadImage")
             const message = document.querySelector("#message")
+
+            var imageElementWidth = imageElement.getBoundingClientRect().width;
+            var clientWidth = window.innerWidth || document.body.clientWidth;
+            var intendedImageElementWidth = clientWidth;
+            var transformX = intendedImageElementWidth / imageElementWidth;
+            var scaleFactor = transformX;
 
             form.onsubmit = (e) => {
                 e.preventDefault()
@@ -142,21 +144,18 @@
                 imageAjax.onreadystatechange = () => {
 
                     if(imageAjax.readyState === 4) {
+                        imageElement.style.visibiliy = "hidden";
                         parsedImage = JSON.parse(imageAjax.responseText)
                         const image = parsedImage.image;
-                        
 
                         const ratio = parsedImage.aspect;
                         const width = parsedImage.width;
                         const height = width / ratio;
 
-                        console.log(width, height, ratio);
-                        
-                        imageElement.style.width = (width * 1.422) + "ex";
-                        imageElement.style.minHeight = (width * 1.3) / ratio + "ex";
-
                         imageElement.style.background = (reverse) ? "#fff" : "#000";
                         imageElement.style.color = (reverse) ? "#000" : "#fff";
+                        imageElement.style.width = (width * 1.422) + "ex";
+                        imageElement.style.minHeight = (width * 1.3) / ratio + "ex";
 
                         var imageHTML = "";
                         if(!color) {
@@ -167,18 +166,29 @@
                                     imageHTML += "<br>"
                                     continue;
                                 }
-                                if(!parsedImage.alpha) {
+                                if(!parsedImage.alpha) { 
                                     imageHTML += `<i style="color: rgb(${parsedImage.pixel_values[i][0]}, ${parsedImage.pixel_values[i][1]}, ${parsedImage.pixel_values[i][2]})">${image.charAt(i)}</i>`
                                 } else {
                                     imageHTML += `<i style="color: rgba(${parsedImage.pixel_values[i][0]}, ${parsedImage.pixel_values[i][1]}, ${parsedImage.pixel_values[i][2]}, ${parsedImage.pixel_values[i][3]})">${image.charAt(i)}</i>`
                                 }
                             }
-
                             imageElement.innerHTML = imageHTML;
                         }
 
                         message.textContent = "";
-                    }
+
+                        imageElementWidth = imageElement.getBoundingClientRect().width;
+                        transformX = intendedImageElementWidth / imageElementWidth;
+                        scaleFactor = transformX;
+
+                        if(transformX !== 1) {
+                            imageElement.style.transform = `scale(${transformX})`;
+                        } else {
+                            imageElement.style.visibiliy = "visible";
+                        }
+                        console.log(intendedImageElementWidth, imageElementWidth, transformX);
+                        
+                    }   
                 }
             }
         }

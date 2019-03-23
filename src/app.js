@@ -2,20 +2,18 @@ const { PythonShell } = require("python-shell")
 const express = require("express")
 const fs = require("fs")
 const multer = require("multer")
-const { spawn, exec } = require("child_process")
 const path = require("path")
 
 const port = process.env.PORT || 3000;
-
 const app = express()
 
-var filename
+var filename // Global so that filename function can see it
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination(req, file, cb) {
         cb(null, './uploads')
     },
-    filename: function (req, file, cb) {
+    filename(req, file, cb) {
         filename = file.fieldname + '-' + Date.now()
         cb(null, filename)
     }
@@ -24,11 +22,11 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 10000000
+        fileSize: 20000000
     },
     fileFilter(req, file, cb) {
         if(!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-            return cb(new Error("Please upload an image!"))
+            return cb("Upload an image!", false)
         }
         
         cb(undefined, true)
@@ -60,10 +58,8 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
             args.push("-r", req.body.resolution)
         }
     } catch(e) {
-        res.status(400).send({image: "Invalid."})
+        return res.status(400).send({image: "Invalid."})
     }
-
-    console.log(args);
     
 
     PythonShell.run("./python/ascii_image.py", {
@@ -76,8 +72,6 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
 
         const JSONImagePath = results[0];
 
-        // console.log(JSONImagePath);
-
         fs.readFile(JSONImagePath, (e, result) => {
             if(e) {
                 console.log(e);
@@ -85,9 +79,6 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
             }
 
             res.send(result)
-
-            console.log(JSON.parse(result).pixel_values);
-            
 
             fs.unlink(JSONImagePath, (e) => {
                 if(e) {
