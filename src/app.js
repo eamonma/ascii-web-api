@@ -107,7 +107,7 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
 })
 
 app.get("*", (req, res) => {
-    res.status(404).send("</pre>This page does not exist.</pre>")
+    res.status(404).send("<pre>This page does not exist.</pre>")
 })
 
 app.listen(port, () => {
