@@ -214,7 +214,10 @@
             var transformX = intendedImageElementWidth / imageElementWidth;
             var scaleFactor = transformX;
 
-            Image.requestImageJSON("/sample", null, (result) => {
+            Image.requestImageJSON("/sample", null, (error, result) => {
+                if(error) {
+                    alert("Please connect to the internet!")
+                }
                 Image.renderToDiv(imageElement, result, true, false);
             })
 
