@@ -183,7 +183,11 @@
                 req.send(formData)
                 req.onreadystatechange = () => {
                     if(req.readyState === 4) {
-                        cb(JSON.parse(req.responseText));
+                        try {
+                            cb(undefined, JSON.parse(req.responseText));
+                        } catch(e) {
+                            cb(e);
+                        }
                     }
                 }
             }
@@ -228,7 +232,10 @@
                 formData.append("reverse", reverse)
                 formData.append("resolution", resolution)
 
-                Image.requestImageJSON("/ascii:image", formData, (result) => {
+                Image.requestImageJSON("/ascii:image", formData, (error, result) => {
+                    if(error) {
+                        alert("Please upload a valid image!")
+                    }
                     Image.renderToDiv(imageElement, result, color, reverse);
                     message.textContent = "";
 

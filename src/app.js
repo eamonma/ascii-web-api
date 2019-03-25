@@ -42,11 +42,13 @@ app.post("/sample", (req, res) => {
 })
 
 app.post("/ascii:image", upload.single("image"), async (req, res) => {
-    var filePath
-    try {
-        filePath = req.file.path
-    } catch(e) {
-        return res.status(400).send({image: "Please upload a valid image."})
+    let filePath
+    if(!req.body.url) {
+        try {
+            filePath = req.file.path
+        } catch(e) {
+            return res.status(400).send({image: "Please upload a valid image."})
+        }
     }
     
     var args = ["-f", "./" + filePath, "-j", "./JSONimages"]
@@ -55,6 +57,9 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
     }
     if(req.body.reverse === "true") {
         args.push("-rev")
+    }
+    if(req.body.url) {
+        args.push("-c").push(req.body.url);
     }
 
     console.log(req.body.reverse);
@@ -81,10 +86,8 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
         fs.readFile(JSONImagePath, (e, result) => {
             if(e) {
                 console.log(e);
-                return res.status(500).send({image:"Error reading image."})
+                res.status(500).send({image:"Error reading image."})
             }
-
-            res.send(result)
 
             fs.unlink(JSONImagePath, (e) => {
                 if(e) {
@@ -97,6 +100,8 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
                     console.log(e);   
                 }
             })
+
+            res.send(result)
         })
     })
 })
