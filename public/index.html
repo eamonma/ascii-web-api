@@ -214,7 +214,7 @@
             var transformX = intendedImageElementWidth / imageElementWidth;
             var scaleFactor = transformX;
 
-            Image.requestImageJSON("/sample", null, (error, result) => {
+            Image.requestImageJSON("/ascii/sample", null, (error, result) => {
                 if(error) {
                     alert("Please connect to the internet!")
                 }
@@ -235,7 +235,7 @@
                 formData.append("reverse", reverse)
                 formData.append("resolution", resolution)
 
-                Image.requestImageJSON("/ascii:image", formData, (error, result) => {
+                Image.requestImageJSON("/ascii/ascii:image", formData, (error, result) => {
                     if(error) {
                         alert("Please upload a valid image!")
                     }

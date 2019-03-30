@@ -33,15 +33,14 @@ const upload = multer({
     }
 })
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname + "/../public/index.html"))
+app.use("/ascii", express.static(path.join(__dirname, "../public")))
+
+app.post("/ascii/sample", (req, res) => {
+    console.log(path.join(__dirname, "../public/sample.json"));
+    res.sendFile(path.join(__dirname, "../public/sample.json"))
 })
 
-app.post("/sample", (req, res) => {
-    res.sendFile(path.join(__dirname + "/../public/sample.json"))
-})
-
-app.post("/ascii:image", upload.single("image"), async (req, res) => {
+app.post("/ascii/ascii:image", upload.single("image"), async (req, res) => {
     let filePath
     if(!req.body.url) {
         try {
@@ -106,7 +105,7 @@ app.post("/ascii:image", upload.single("image"), async (req, res) => {
     })
 })
 
-app.get("*", (req, res) => {
+app.get("/ascii/*", (req, res) => {
     res.status(404).send("<pre>This page does not exist.</pre>")
 })
 
